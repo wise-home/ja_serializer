@@ -396,7 +396,7 @@ defmodule JaSerializer.Builder.IncludedTest do
       comments: [comment1, comment2],
       author: author1
     }
-
+# `author` is included twice, ensure that `publishing_agent` is included under `auhtor` 
     opts = %{include: [author: [], comments: [author: [publishing_agent: []]]]}
 
     context = %{
