@@ -362,6 +362,83 @@ defmodule JaSerializer.Builder.IncludedTest do
     assert c1_tags_data == [%{"type" => "tags", "id" => t2.id}]
   end
 
+  test "duplicated sibling includes are serialized correctly" do
+    publishing_agent1 = %TestModel.Person{id: "pa1", first_name: "pa1 name"}
+    publishing_agent2 = %TestModel.Person{id: "pa2", first_name: "pa2 name"}
+
+    author1 = %TestModel.Person{
+      id: "au1",
+      first_name: "author1 name",
+      publishing_agent: publishing_agent1
+    }
+
+    author2 = %TestModel.Person{
+      id: "au2",
+      first_name: "author2 name",
+      publishing_agent: publishing_agent2
+    }
+
+    comment1 = %TestModel.Comment{
+      id: "c1",
+      body: "body 1",
+      author: author1
+    }
+
+    comment2 = %TestModel.Comment{
+      id: "c2",
+      body: "body 2",
+      author: author2
+    }
+
+    article = %TestModel.Article{
+      id: "ar1",
+      title: "ar title",
+      comments: [comment1, comment2],
+      author: author1
+    }
+# `author` is included twice, ensure that `publishing_agent` is included under `auhtor` 
+    opts = %{include: [author: [], comments: [author: [publishing_agent: []]]]}
+
+    context = %{
+      data: article,
+      conn: %{},
+      serializer: OptionalIncludeArticleSerializer,
+      opts: opts
+    }
+
+    primary_resource = JaSerializer.Builder.ResourceObject.build(context)
+    includes = JaSerializer.Builder.Included.build(context, primary_resource)
+
+    ids = Enum.map(includes, & &1.id)
+
+    assert [_, _, _, _, _, _] = ids
+    assert "pa1" in ids
+    assert "pa2" in ids
+    assert "au1" in ids
+    assert "au2" in ids
+    assert "c1" in ids
+    assert "c2" in ids
+
+    json =
+      JaSerializer.format(
+        OptionalIncludeArticleSerializer,
+        article,
+        %{},
+        include: "author,comments.author.publishing-agent"
+      )
+
+    assert %{} = json["data"]
+
+    assert json["data"]["relationships"]["author"]["data"]["id"] == "au1"
+
+    article_comments = json["data"]["relationships"]["comments"]["data"]
+    assert Enum.any?(article_comments, &(&1["id"] == "c1"))
+    assert Enum.any?(article_comments, &(&1["id"] == "c2"))
+
+    included = json["included"]
+    assert [_, _, _, _, _, _] = included
+  end
+
   test "sparse fieldset returns only specified fields" do
     p1 = %TestModel.Person{id: "p1", first_name: "p1", last_name: "p1"}
     a1 = %TestModel.Article{id: "a1", title: "a1", body: "a1", author: p1}
