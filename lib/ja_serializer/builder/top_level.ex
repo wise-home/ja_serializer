@@ -9,7 +9,7 @@ defmodule JaSerializer.Builder.TopLevel do
   defstruct [:data, :errors, :included, :meta, {:links, []}, :jsonapi]
 
   if Code.ensure_loaded?(Scrivener) do
-    def build(context = %{data: %Scrivener.Page{} = page, opts: opts}) do
+    def build(%{data: %Scrivener.Page{} = page, opts: opts} = context) do
       opts = Enum.into(opts, %{})
       # Build scrivener pagination links before we lose page object
       links = JaSerializer.Builder.ScrivenerLinks.build(context)

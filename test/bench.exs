@@ -83,4 +83,4 @@ defmodule Benchmark do
   end
 end
 
-Benchmark.run() |> IO.inspect()
+Benchmark.run()

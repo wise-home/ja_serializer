@@ -33,7 +33,7 @@ defmodule JaSerializer.Builder.Relationship do
 
   defp filter_fields(
          relationships,
-         context = %{serializer: serializer, opts: opts}
+         %{serializer: serializer, opts: opts} = context
        ) do
     case opts[:fields] do
       fields when is_map(fields) ->
