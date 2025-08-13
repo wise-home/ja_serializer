@@ -190,21 +190,21 @@ defmodule InflexTest do
   end
 
   test :camelize_upper do
-    assert "Upper"          == camelize("upper")
+    assert "Upper" == camelize("upper")
     assert "UpperCamelCase" == camelize("upper_camel_case")
     assert "UpperCamelCase" == camelize("UpperCamelCase")
     assert "UpperCamelCase" == camelize("UPPER_CAMEL_CASE")
-    assert ""               == camelize("")
+    assert "" == camelize("")
     refute "UpperCamelCase" == camelize("upper_camel_case", :lower)
   end
 
   test :camelize_lower do
-    assert "lower"          == camelize("lower", :lower)
+    assert "lower" == camelize("lower", :lower)
     assert "lowerCamelCase" == camelize("lower_camel_case", :lower)
     assert "lowerCamelCase" == camelize("Lower_camel_case", :lower)
     assert "lowerCamelCase" == camelize("lowerCamelCase", :lower)
     assert "lowerCamelCase" == camelize("LOWER_CAMEL_CASE", :lower)
-    assert ""               == camelize("", :lower)
+    assert "" == camelize("", :lower)
     refute "lowerCamelCase" == camelize("lower_camel_case")
   end
 
@@ -277,5 +277,4 @@ defmodule InflexTest do
     assert "accomplice" == inflect("accomplice", 1)
     assert "accomplice" == inflect("accomplice", 1.0)
   end
-
 end
