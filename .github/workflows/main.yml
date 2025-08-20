@@ -1,0 +1,61 @@
+name: CI
+
+on: push
+
+# Set the GITHUB_TOKEN to a restricted permission we don't need anything else than this.
+# This will disable all other permissions than metadata: read, which is always enabled.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: OTP ${{ matrix.otp }} / Elixir ${{ matrix.elixir }}
+    strategy:
+      fail-fast: false
+      matrix:
+        otp: [26, 27, 28]
+        elixir: [1.17.x, 1.18.x]
+        exclude:
+          - otp: 28
+            elixir: 1.17.x
+    env:
+      MIX_ENV: test
+      cache_version: v3
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+
+      - uses: actions/cache@v4
+        name: Cache deps
+        with:
+          path: deps
+          key: deps-${{ env.cache_version }}-${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: deps-${{ env.cache_version }}-${{ runner.os }}
+ 
+      - uses: actions/cache@v4
+        name: Cache _build
+        with:
+          path: _build
+          key: build-erlef-${{ env.cache_version }}-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          restore-keys: build-erlef-${{ env.cache_version }}-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+
+      - uses: erlef/setup-elixir@v1
+        name: Setup elixir
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - run: mix deps.get
+
+      - name: Check that no unused deps exist
+        run: |
+          mix deps.clean --unused --unlock
+          git diff --exit-code
+
+      - run: mix compile
+      - run: mix test --trace --include skip
+      - run: mix credo
+      - run: mix dialyzer
+      - run: mix format --check-formatted

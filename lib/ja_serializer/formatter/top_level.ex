@@ -3,7 +3,7 @@ defimpl JaSerializer.Formatter, for: JaSerializer.Builder.TopLevel do
 
   @jsonapi_version "1.0"
 
-  def format(struct = %{errors: nil}) do
+  def format(%{errors: nil} = struct) do
     %{"data" => JaSerializer.Formatter.format(struct.data)}
     |> format_links(struct.links)
     |> Utils.put_if_present("meta", JaSerializer.Formatter.format(struct.meta))
@@ -14,7 +14,7 @@ defimpl JaSerializer.Formatter, for: JaSerializer.Builder.TopLevel do
     |> put_version
   end
 
-  def format(struct = %{data: nil}) do
+  def format(%{data: nil} = struct) do
     %{"errors" => JaSerializer.Formatter.format(struct.errors)} |> put_version
   end
 

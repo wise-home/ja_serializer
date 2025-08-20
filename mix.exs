@@ -23,7 +23,6 @@ defmodule JaSerializer.Mixfile do
 
   defp deps do
     [
-      {:inflex, "~> 2.0"},
       {:plug, "> 1.0.0"},
       {:poison, ">= 1.4.0", only: [:docs, :test]},
       {:ecto, "~> 1.1 or ~> 2.0 or ~> 3.0", only: :test},
@@ -32,8 +31,8 @@ defmodule JaSerializer.Mixfile do
       {:scrivener, "~> 1.2 or ~> 2.0", optional: true},
       {:benchfella, "~> 0.3", only: :dev},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev},
-      {:credo, "~> 1.4", only: :dev}
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 
